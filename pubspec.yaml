@@ -1,0 +1,104 @@
+  name: puja_experts
+  description: "Professional Puja Experts Flutter application."
+  publish_to: 'none'
+
+  # Application version
+  # version: major.minor.patch+build
+  version: 1.0.0+1
+
+  environment:
+    sdk: ^3.10.4
+
+  dependencies:
+    flutter:
+      sdk: flutter
+
+    # --------------------------------------------------
+    # UI / Icons
+    # --------------------------------------------------
+    cupertino_icons: ^1.0.8
+
+    # --------------------------------------------------
+    # State Management
+    # --------------------------------------------------
+    flutter_bloc: ^9.1.1
+    equatable: ^2.0.7
+
+    # --------------------------------------------------
+    # Networking / REST API
+    # --------------------------------------------------
+    http: ^1.5.0
+
+    # --------------------------------------------------
+    # Local Storage
+    # --------------------------------------------------
+    shared_preferences: ^2.5.3
+
+    # --------------------------------------------------
+    # Images
+    # --------------------------------------------------
+    cached_network_image: ^3.4.1
+    image_picker: ^1.1.2
+
+    # --------------------------------------------------
+    # Date / Number / Currency Formatting
+    # --------------------------------------------------
+    intl: ^0.20.2
+
+    # --------------------------------------------------
+    # Payment Gateway
+    # --------------------------------------------------
+    razorpay_flutter: ^1.4.7
+
+  dev_dependencies:
+    # --------------------------------------------------
+    # Testing
+    # --------------------------------------------------
+    flutter_test:
+      sdk: flutter
+
+    # --------------------------------------------------
+    # Linting
+    # --------------------------------------------------
+    flutter_lints: ^6.0.0
+
+  flutter:
+    # --------------------------------------------------
+    # Material Icons
+    # --------------------------------------------------
+    uses-material-design: true
+
+    # --------------------------------------------------
+    # Assets
+    # Add your assets here when required.
+    #
+    # Example:
+    #
+    # assets:
+    #   - assets/images/
+    #   - assets/icons/
+    #
+    assets:
+      - assets/images/splash_temple.png
+      - assets/images/auth_background.png
+
+    # --------------------------------------------------
+
+    # --------------------------------------------------
+    # Custom Fonts
+    # Add fonts here when required.
+    #
+    # Example:
+    #
+    # fonts:
+    #   - family: Poppins
+    #     fonts:
+    #       - asset: assets/fonts/Poppins-Regular.ttf
+    #       - asset: assets/fonts/Poppins-Medium.ttf
+    #         weight: 500
+    #       - asset: assets/fonts/Poppins-SemiBold.ttf
+    #         weight: 600
+    #       - asset: assets/fonts/Poppins-Bold.ttf
+    #         weight: 700
+    #
+    # --------------------------------------------------
