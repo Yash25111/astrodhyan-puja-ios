@@ -31,15 +31,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
         },
         child: CustomScrollView(
           slivers: [
-            const SliverPadding(
-              padding: EdgeInsets.fromLTRB(18, 20, 18, 12),
-              sliver: SliverToBoxAdapter(
-                child: Text(
-                  'My Bookings',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
-                ),
-              ),
-            ),
             BlocBuilder<HistoryBloc, HistoryState>(
               builder: (c, s) {
                 if (s.loading && s.items.isEmpty) {
@@ -53,7 +44,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   );
                 }
                 return SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
+                  padding: const EdgeInsets.fromLTRB(18, 18, 18, 24),
                   sliver: SliverList.separated(
                     itemCount: s.items.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 10),

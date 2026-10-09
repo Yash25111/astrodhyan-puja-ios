@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app_colors.dart';
+import '../../../widgets/app_appbar.dart';
 import '../../../widgets/app_button.dart';
 import '../../../widgets/app_card.dart';
 import '../../router/app_router.dart';
@@ -13,8 +14,8 @@ class BookingSuccessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext c) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Booking Confirmed'),
+      appBar: const AppAppBar(
+        titleText: 'Booking Confirmed',
         automaticallyImplyLeading: false,
       ),
       body: Padding(

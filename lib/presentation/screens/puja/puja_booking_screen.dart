@@ -6,6 +6,7 @@ import '../../../data/models/order_result.dart';
 import '../../../data/models/transaction.dart';
 import '../../../services/payment_service.dart';
 import '../../../utils/validators.dart';
+import '../../../widgets/app_appbar.dart';
 import '../../../widgets/app_button.dart';
 import '../../../widgets/app_card.dart';
 import '../../../widgets/app_key_value.dart';
@@ -114,7 +115,7 @@ class _PujaBookingScreenState extends State<PujaBookingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Book Puja')),
+      appBar: const AppAppBar(titleText: 'Book Puja'),
       body: BlocListener<BookingBloc, BookingState>(
         listener: (context, state) {
           if (state.error != null) {

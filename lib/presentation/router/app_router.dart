@@ -7,8 +7,12 @@ import '../screens/puja/puja_detail_screen.dart';
 import '../screens/puja/puja_booking_screen.dart';
 import '../screens/puja/puja_list_screen.dart';
 import '../screens/booking/booking_success_screen.dart';
+import '../screens/history/bookings_screen.dart';
 import '../screens/history/transaction_detail_screen.dart';
 import '../screens/profile/profile_edit_screen.dart';
+import '../screens/profile/notifications_screen.dart';
+import '../screens/profile/support_screen.dart';
+import '../screens/profile/terms_privacy_screen.dart';
 
 class AppRouter {
   static const splash = '/',
@@ -20,7 +24,11 @@ class AppRouter {
       booking = '/booking',
       success = '/success',
       transaction = '/transaction',
-      profileEdit = '/profile/edit';
+      profileEdit = '/profile/edit',
+      bookings = '/profile/bookings',
+      notifications = '/profile/notifications',
+      support = '/profile/support',
+      termsPrivacy = '/profile/terms-privacy';
   static Route<dynamic> onGenerateRoute(RouteSettings s) {
     switch (s.name) {
       case splash:
@@ -54,6 +62,14 @@ class AppRouter {
         );
       case profileEdit:
         return MaterialPageRoute(builder: (_) => const ProfileEditScreen());
+      case bookings:
+        return MaterialPageRoute(builder: (_) => const BookingsScreen());
+      case notifications:
+        return MaterialPageRoute(builder: (_) => const NotificationsScreen());
+      case support:
+        return MaterialPageRoute(builder: (_) => const SupportScreen());
+      case termsPrivacy:
+        return MaterialPageRoute(builder: (_) => const TermsPrivacyScreen());
       default:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
     }

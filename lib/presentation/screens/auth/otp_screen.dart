@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../app_colors.dart';
+import '../../../widgets/app_appbar.dart';
 import '../../../widgets/app_button.dart';
 import '../../../widgets/app_heading.dart';
 import '../../bloc/auth/auth_bloc.dart';
@@ -48,7 +49,7 @@ class _OtpScreenState extends State<OtpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
+      appBar: const AppAppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: AppColors.heading,
       ),

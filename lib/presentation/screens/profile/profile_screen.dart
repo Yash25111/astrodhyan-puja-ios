@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app_colors.dart';
 import '../../../core/network/api_endpoints.dart';
 import '../../../widgets/app_card.dart';
-import '../../../widgets/app_rupee_amount.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/profile/profile_bloc.dart';
 import '../../router/app_router.dart';
@@ -33,11 +32,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return ListView(
             padding: const EdgeInsets.all(18),
             children: [
-              const Text(
-                'My Profile',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 18),
               AppCard(
                 child: Row(
                   children: [
@@ -69,11 +63,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               fontWeight: FontWeight.w800,
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            p?.number ?? '',
-                            style: const TextStyle(color: AppColors.subheading),
-                          ),
+                          if (p?.number.isNotEmpty == true) ...[
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.phone_outlined,
+                                  size: 15,
+                                  color: AppColors.primary,
+                                ),
+                                const SizedBox(width: 5),
+                                Flexible(
+                                  child: Text(
+                                    p!.number,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: AppColors.subheading,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                           if (p?.email.isNotEmpty == true)
                             Text(
                               p!.email,
@@ -100,29 +113,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   label: const Text('Edit Profile'),
                 ),
               ),
-              const SizedBox(height: 12),
-              AppCard(
-                color: AppColors.cream,
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.account_balance_wallet_outlined,
-                      color: AppColors.primary,
-                    ),
-                    const SizedBox(width: 10),
-                    const Expanded(
-                      child: Text(
-                        'Wallet Balance',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    AppRupeeAmount(
-                      amount: p?.wallet ?? 0,
-                      color: AppColors.primaryDark,
-                    ),
-                  ],
-                ),
-              ),
               const SizedBox(height: 18),
               const Text(
                 'Account',
@@ -133,13 +123,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: EdgeInsets.zero,
                 child: Column(
                   children: [
-                    _item(Icons.event_note_outlined, 'My Bookings'),
+                    _item(
+                      Icons.event_note_outlined,
+                      'My Bookings',
+                      () => Navigator.pushNamed(c, AppRouter.bookings),
+                    ),
                     const Divider(height: 1),
-                    _item(Icons.notifications_none, 'Notifications'),
+                    _item(
+                      Icons.notifications_none,
+                      'Notifications',
+                      () => Navigator.pushNamed(c, AppRouter.notifications),
+                    ),
                     const Divider(height: 1),
-                    _item(Icons.help_outline, 'Help & Support'),
+                    _item(
+                      Icons.help_outline,
+                      'Help & Support',
+                      () => Navigator.pushNamed(c, AppRouter.support),
+                    ),
                     const Divider(height: 1),
-                    _item(Icons.privacy_tip_outlined, 'Terms & Privacy'),
+                    _item(
+                      Icons.privacy_tip_outlined,
+                      'Terms & Privacy',
+                      () => Navigator.pushNamed(c, AppRouter.termsPrivacy),
+                    ),
                   ],
                 ),
               ),
@@ -175,9 +181,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-Widget _item(IconData icon, String title) {
+Widget _item(IconData icon, String title, VoidCallback onTap) {
   return ListTile(
-    onTap: () {},
+    onTap: onTap,
     leading: Icon(icon, color: AppColors.primary),
     title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
     trailing: const Icon(Icons.chevron_right, color: AppColors.grey),

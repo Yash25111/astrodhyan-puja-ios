@@ -118,13 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: submit,
                         ),
                       ),
-                      const SizedBox(height: 14),
-                      const Text(
-                        'By continuing, you agree to our Terms & Privacy Policy.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: AppColors.grey, fontSize: 12),
-                      ),
-                      const SizedBox(height: 30),
+
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(

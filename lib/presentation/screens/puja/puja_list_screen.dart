@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../widgets/app_appbar.dart';
 import '../../../widgets/app_search_field.dart';
 import '../../bloc/puja/puja_bloc.dart';
 import '../../router/app_router.dart';
@@ -39,7 +40,7 @@ class _PujaListScreenState extends State<PujaListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('All Pujas')),
+      appBar: const AppAppBar(titleText: 'All Pujas'),
       body: RefreshIndicator(
         onRefresh: () async {
           context.read<PujaBloc>().add(const PujasRequested(refresh: true));

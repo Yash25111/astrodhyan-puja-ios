@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../data/models/user_profile.dart';
 import '../../../data/repositories/profile_repository.dart';
+
 class ProfileState extends Equatable {
   const ProfileState({
     this.profile,
@@ -9,8 +10,7 @@ class ProfileState extends Equatable {
     this.updating = false,
     this.error,
     this.updateSuccess = false,
-  }
-  );
+  });
   final UserProfile? profile;
   final bool loading;
   final bool updating;
@@ -23,42 +23,43 @@ class ProfileState extends Equatable {
     String? error,
     bool? updateSuccess,
     bool clearError = false,
-  }
-  ) {
+  }) {
     return ProfileState(
-    profile: profile ?? this.profile,
-    loading: loading ?? this.loading,
-    updating: updating ?? this.updating,
-    error: clearError ? null : error ?? this.error,
-    updateSuccess: updateSuccess ?? this.updateSuccess,
+      profile: profile ?? this.profile,
+      loading: loading ?? this.loading,
+      updating: updating ?? this.updating,
+      error: clearError ? null : error ?? this.error,
+      updateSuccess: updateSuccess ?? this.updateSuccess,
     );
   }
+
   @override
   List<Object?> get props => [profile, loading, updating, error, updateSuccess];
 }
+
 sealed class ProfileEvent extends Equatable {
   const ProfileEvent();
   @override
   List<Object?> get props => [];
 }
+
 class ProfileRequested extends ProfileEvent {
   const ProfileRequested();
 }
+
 class ProfileUpdateRequested extends ProfileEvent {
   const ProfileUpdateRequested({
     required this.name,
-    required this.email,
     required this.gender,
     this.imagePath,
-  }
-  );
+  });
   final String name;
-  final String email;
   final String gender;
   final String? imagePath;
   @override
-  List<Object?> get props => [name, email, gender, imagePath];
+  List<Object?> get props => [name, gender, imagePath];
 }
+
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc(this.repository) : super(const ProfileState()) {
     on<ProfileRequested>(_getProfile);
@@ -66,8 +67,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
   final ProfileRepository repository;
   Future<void> _getProfile(
-  ProfileRequested event,
-  Emitter<ProfileState> emit,
+    ProfileRequested event,
+    Emitter<ProfileState> emit,
   ) async {
     emit(state.copyWith(loading: true, clearError: true));
     try {
@@ -77,23 +78,23 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       emit(state.copyWith(loading: false, error: error.toString()));
     }
   }
+
   Future<void> _updateProfile(
-  ProfileUpdateRequested event,
-  Emitter<ProfileState> emit,
+    ProfileUpdateRequested event,
+    Emitter<ProfileState> emit,
   ) async {
-    emit(state.copyWith(updating: true, updateSuccess: false, clearError: true));
+    emit(
+      state.copyWith(updating: true, updateSuccess: false, clearError: true),
+    );
     try {
       final profile = await repository.update(
-      name: event.name,
-      email: event.email,
-      gender: event.gender,
-      imagePath: event.imagePath,
+        name: event.name,
+        gender: event.gender,
+        imagePath: event.imagePath,
       );
-      emit(state.copyWith(
-      updating: false,
-      profile: profile,
-      updateSuccess: true,
-      ));
+      emit(
+        state.copyWith(updating: false, profile: profile, updateSuccess: true),
+      );
     } catch (error) {
       emit(state.copyWith(updating: false, error: error.toString()));
     }

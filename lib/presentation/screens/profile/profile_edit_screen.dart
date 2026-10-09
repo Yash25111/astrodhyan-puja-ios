@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../app_colors.dart';
 import '../../../utils/validators.dart';
+import '../../../widgets/app_appbar.dart';
 import '../../../widgets/app_button.dart';
 import '../../../widgets/app_card.dart';
 import '../../../widgets/app_text_field.dart';
@@ -18,7 +19,6 @@ class ProfileEditScreen extends StatefulWidget {
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
-  final emailController = TextEditingController();
   String gender = 'Male';
   String? imagePath;
   bool initialized = false;
@@ -33,14 +33,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     if (initialized) return;
     initialized = true;
     nameController.text = profile.name;
-    emailController.text = profile.email;
     gender = profile.gender.isEmpty ? 'Male' : profile.gender;
   }
 
   @override
   void dispose() {
     nameController.dispose();
-    emailController.dispose();
     super.dispose();
   }
 
@@ -60,7 +58,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     context.read<ProfileBloc>().add(
       ProfileUpdateRequested(
         name: nameController.text.trim(),
-        email: emailController.text.trim(),
         gender: gender,
         imagePath: imagePath,
       ),
@@ -70,7 +67,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Profile')),
+      appBar: const AppAppBar(titleText: 'Edit Profile'),
       body: BlocListener<ProfileBloc, ProfileState>(
         listener: (context, state) {
           if (state.error != null) {
@@ -128,13 +125,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                           labelText: 'Full Name',
                           validator: (value) =>
                               Validators.required(value, 'Name'),
-                        ),
-                        const SizedBox(height: 14),
-                        AppTextField(
-                          controller: emailController,
-                          labelText: 'Email',
-                          keyboardType: TextInputType.emailAddress,
-                          validator: Validators.email,
                         ),
                         const SizedBox(height: 14),
                         DropdownButtonFormField<String>(
