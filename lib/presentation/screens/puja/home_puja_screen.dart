@@ -69,7 +69,8 @@ class _HomePujaScreenState extends State<HomePujaScreen> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () =>
+                          Navigator.pushNamed(c, AppRouter.notifications),
                       icon: const Icon(Icons.notifications_none),
                     ),
                   ],

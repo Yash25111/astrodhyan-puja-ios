@@ -4,6 +4,7 @@ import '../../../app_colors.dart';
 import '../../../core/storage/local_storage.dart';
 import '../../../data/models/order_result.dart';
 import '../../../data/models/transaction.dart';
+import '../../../services/time_format_service.dart';
 import '../../../services/payment_service.dart';
 import '../../../utils/validators.dart';
 import '../../../widgets/app_appbar.dart';
@@ -149,7 +150,10 @@ class _PujaBookingScreenState extends State<PujaBookingScreen> {
                       style: const TextStyle(color: AppColors.subheading),
                     ),
                     const SizedBox(height: 12),
-                    AppKeyValue(label: 'Date', value: widget.data.date),
+                    AppKeyValue(
+                      label: 'Date',
+                      value: TimeFormatService.formatDate(widget.data.date),
+                    ),
                     const SizedBox(height: 8),
                     AppKeyValue(label: 'Location', value: widget.data.location),
                     const SizedBox(height: 8),

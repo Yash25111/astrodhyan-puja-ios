@@ -4,6 +4,8 @@ import '../models/order_result.dart';
 import '../models/transaction.dart';
 
 class BookingRepository {
+  static const pageSize = 10;
+
   final HttpService http;
 
   BookingRepository({required this.http});
@@ -38,10 +40,13 @@ class BookingRepository {
     return OrderResult.fromJson(Map<String, dynamic>.from(r));
   }
 
-  Future<List<PujaTransaction>> history() async {
+  Future<List<PujaTransaction>> history({
+    int page = 1,
+    int limit = pageSize,
+  }) async {
     final r = await http.get(
       ApiEndpoints.transactions,
-      query: {'page': 1, 'limit': 10},
+      query: {'page': page, 'limit': limit},
     );
     final d = r is Map ? r['transactions'] : null;
     return d is List

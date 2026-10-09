@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app_colors.dart';
 import '../../../core/network/api_endpoints.dart';
 import '../../../data/models/puja_detail.dart';
+import '../../../services/time_format_service.dart';
 import '../../../widgets/app_button.dart';
 import '../../../widgets/app_card.dart';
 import '../../../widgets/app_rating.dart';
@@ -59,12 +60,6 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                       240.0,
                     ),
                 pinned: true,
-                actions: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.favorite_border),
-                  ),
-                ],
                 flexibleSpace: FlexibleSpaceBar(
                   background: CachedNetworkImage(
                     imageUrl: ApiEndpoints.image(
@@ -128,7 +123,11 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                     const SizedBox(height: 18),
                     Row(
                       children: [
-                        _info(Icons.calendar_month, 'Date', d.puja.pujaDate),
+                        _info(
+                          Icons.calendar_month,
+                          'Date',
+                          TimeFormatService.formatDate(d.puja.pujaDate),
+                        ),
                         const SizedBox(width: 10),
                         _info(
                           Icons.location_on_outlined,
