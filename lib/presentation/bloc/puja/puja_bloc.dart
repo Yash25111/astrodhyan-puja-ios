@@ -166,7 +166,7 @@ class PujaBloc extends Bloc<PujaEvent, PujaState> {
       ),
     );
     try {
-      final x = await repo.home(lang: state.lang, search: state.search);
+      final x = await repo.home(lang: state.lang);
       o(
         state.copy(
           homeLoading: false,
@@ -232,8 +232,9 @@ class PujaBloc extends Bloc<PujaEvent, PujaState> {
   }
 
   Future<void> _search(SearchChanged e, Emitter<PujaState> o) async {
-    o(state.copy(search: e.q));
-    add(const HomePujasRequested(refresh: true));
+    final query = e.q.trim();
+    if (query == state.search) return;
+    o(state.copy(search: query));
     add(const PujasRequested(refresh: true));
   }
 

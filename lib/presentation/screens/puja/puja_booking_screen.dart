@@ -88,7 +88,7 @@ class _PujaBookingScreenState extends State<PujaBookingScreen> {
         orderId: order.orderId,
         amountInRupees: order.totalAmount,
         contact: contact,
-        key: order.key.isNotEmpty ? order.key : PaymentService.testKey,
+        key: PaymentService.liveKey,
         description: 'Pooja Booking Payment',
       );
       if (!mounted) return;
@@ -225,6 +225,8 @@ class _PujaBookingScreenState extends State<PujaBookingScreen> {
                         const SizedBox(height: 10),
                         TextFormField(
                           controller: member.name,
+                          onTapOutside: (_) =>
+                              FocusManager.instance.primaryFocus?.unfocus(),
                           decoration: const InputDecoration(
                             labelText: 'Full Name',
                           ),
@@ -260,6 +262,8 @@ class _PujaBookingScreenState extends State<PujaBookingScreen> {
                         const SizedBox(height: 10),
                         TextFormField(
                           controller: member.gotram,
+                          onTapOutside: (_) =>
+                              FocusManager.instance.primaryFocus?.unfocus(),
                           decoration: const InputDecoration(
                             labelText: 'Gotram',
                           ),

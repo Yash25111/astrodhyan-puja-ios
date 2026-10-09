@@ -35,8 +35,59 @@ class PujaRepository {
     String lang = 'en',
     String search = '',
   }) async {
-    final data = await home(page: page, lang: lang, search: search);
-    return data.pujas;
+    final trimmedSearch = search.trim();
+    final r = await http.get(
+      ApiEndpoints.puja,
+      query: {
+        'page': page,
+        'lang': lang,
+        if (trimmedSearch.length >= 3) 'search': trimmedSearch,
+      },
+      language: lang,
+    );
+    final pujas = _extractPujaList(r);
+    return pujas
+        .whereType<Map>()
+        .map((e) => Puja.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+  }
+
+  List<dynamic> _extractPujaList(dynamic response) {
+    if (response is List) return response;
+    if (response is! Map) throw Exception('Invalid puja list response');
+
+    final data = response['data'];
+    if (data is List) return data;
+    if (data is Map) {
+      return _firstList(data, const [
+        'pujas',
+        'poojas',
+        'pujaList',
+        'poojaList',
+        'docs',
+        'results',
+        'items',
+        'data',
+      ]);
+    }
+
+    return _firstList(response, const [
+      'pujas',
+      'poojas',
+      'pujaList',
+      'poojaList',
+      'docs',
+      'results',
+      'items',
+    ]);
+  }
+
+  List<dynamic> _firstList(Map<dynamic, dynamic> map, List<String> keys) {
+    for (final key in keys) {
+      final value = map[key];
+      if (value is List) return value;
+    }
+    throw Exception('Puja list not found in response');
   }
 
   Future<PujaDetail> detail(String id, {String lang = 'en'}) async {

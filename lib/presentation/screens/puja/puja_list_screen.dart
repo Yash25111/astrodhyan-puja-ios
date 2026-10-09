@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,6 +19,7 @@ class PujaListScreen extends StatefulWidget {
 class _PujaListScreenState extends State<PujaListScreen> {
   final search = TextEditingController();
   final scroll = ScrollController();
+  Timer? searchDebounce;
 
   @override
   void initState() {
@@ -32,9 +35,30 @@ class _PujaListScreenState extends State<PujaListScreen> {
 
   @override
   void dispose() {
+    searchDebounce?.cancel();
     search.dispose();
     scroll.dispose();
     super.dispose();
+  }
+
+  void _queueSearch(String value) {
+    searchDebounce?.cancel();
+    final query = value.trim();
+    final activeSearch = context.read<PujaBloc>().state.search;
+    if (query.isNotEmpty && query.length < 3 && activeSearch.isEmpty) return;
+    searchDebounce = Timer(const Duration(milliseconds: 450), () {
+      if (!mounted) return;
+      context.read<PujaBloc>().add(
+        SearchChanged(query.length >= 3 ? query : ''),
+      );
+    });
+  }
+
+  void _submitSearch(String value) {
+    searchDebounce?.cancel();
+    final query = value.trim();
+    if (query.isNotEmpty && query.length < 3) return;
+    context.read<PujaBloc>().add(SearchChanged(query));
   }
 
   @override
@@ -54,9 +78,8 @@ class _PujaListScreenState extends State<PujaListScreen> {
                 child: AppSearchField(
                   controller: search,
                   hintText: 'Search puja',
-                  onSubmitted: (v) {
-                    context.read<PujaBloc>().add(SearchChanged(v));
-                  },
+                  onChanged: _queueSearch,
+                  onSubmitted: _submitSearch,
                 ),
               ),
             ),

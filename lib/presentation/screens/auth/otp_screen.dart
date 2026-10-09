@@ -117,6 +117,10 @@ class _OtpScreenState extends State<OtpScreen> {
                                   textAlign: TextAlign.center,
                                   textAlignVertical: TextAlignVertical.center,
                                   keyboardType: TextInputType.number,
+                                  onTapOutside: (_) => FocusManager
+                                      .instance
+                                      .primaryFocus
+                                      ?.unfocus(),
                                   style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w800,

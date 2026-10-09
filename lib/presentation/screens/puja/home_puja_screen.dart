@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app_colors.dart';
 import '../../../core/network/api_endpoints.dart';
 import '../../../data/models/puja.dart';
-import '../../../widgets/app_search_field.dart';
 import '../../bloc/puja/puja_bloc.dart';
 import '../../router/app_router.dart';
 import 'widgets/puja_list_card.dart';
@@ -18,19 +19,10 @@ class HomePujaScreen extends StatefulWidget {
 }
 
 class _HomePujaScreenState extends State<HomePujaScreen> {
-  final search = TextEditingController();
-
   @override
   void initState() {
     super.initState();
-    search.text = context.read<PujaBloc>().state.search;
     context.read<PujaBloc>().add(const HomePujasRequested());
-  }
-
-  @override
-  void dispose() {
-    search.dispose();
-    super.dispose();
   }
 
   @override
@@ -84,18 +76,7 @@ class _HomePujaScreenState extends State<HomePujaScreen> {
                 ),
               ),
             ),
-            SliverPadding(
-              padding: const EdgeInsets.all(18),
-              sliver: SliverToBoxAdapter(
-                child: AppSearchField(
-                  controller: search,
-                  hintText: 'Search puja',
-                  onSubmitted: (v) {
-                    context.read<PujaBloc>().add(SearchChanged(v));
-                  },
-                ),
-              ),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 18)),
 
             BlocBuilder<PujaBloc, PujaState>(
               builder: (c, s) {
@@ -129,26 +110,14 @@ class _HomePujaScreenState extends State<HomePujaScreen> {
                         ),
                       ),
                       SizedBox(
-                        height: 178,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 18),
-                          itemCount: s.specialPujas.length,
-                          separatorBuilder: (_, _) => const SizedBox(width: 12),
-                          itemBuilder: (context, index) {
-                            final puja = s.specialPujas[index];
-                            return SizedBox(
-                              width: MediaQuery.sizeOf(context).width - 36,
-                              child: _SpecialPujaBanner(
-                                puja: puja,
-                                onTap: () => Navigator.pushNamed(
-                                  c,
-                                  AppRouter.detail,
-                                  arguments: puja.id,
-                                ),
-                              ),
-                            );
-                          },
+                        height: 218,
+                        child: _SpecialPujaCarousel(
+                          pujas: s.specialPujas,
+                          onTap: (puja) => Navigator.pushNamed(
+                            c,
+                            AppRouter.detail,
+                            arguments: puja.id,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 18),
@@ -205,6 +174,114 @@ class _HomePujaScreenState extends State<HomePujaScreen> {
   }
 }
 
+class _SpecialPujaCarousel extends StatefulWidget {
+  final List<Puja> pujas;
+  final ValueChanged<Puja> onTap;
+
+  const _SpecialPujaCarousel({required this.pujas, required this.onTap});
+
+  @override
+  State<_SpecialPujaCarousel> createState() => _SpecialPujaCarouselState();
+}
+
+class _SpecialPujaCarouselState extends State<_SpecialPujaCarousel> {
+  late final PageController controller;
+  Timer? timer;
+  int currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = PageController(viewportFraction: 0.9);
+    _startAutoScroll();
+  }
+
+  @override
+  void didUpdateWidget(covariant _SpecialPujaCarousel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.pujas.length != widget.pujas.length) {
+      currentIndex = 0;
+      if (controller.hasClients) {
+        controller.jumpToPage(0);
+      }
+      _startAutoScroll();
+    }
+  }
+
+  void _startAutoScroll() {
+    timer?.cancel();
+    if (widget.pujas.length < 2) return;
+    timer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (!mounted || !controller.hasClients) return;
+      final nextPage = (currentIndex + 1) % widget.pujas.length;
+      controller.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 520),
+        curve: Curves.easeOutCubic,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: PageView.builder(
+            controller: controller,
+            padEnds: false,
+            itemCount: widget.pujas.length,
+            onPageChanged: (index) => setState(() => currentIndex = index),
+            itemBuilder: (context, index) {
+              final puja = widget.pujas[index];
+              return AnimatedPadding(
+                duration: const Duration(milliseconds: 240),
+                curve: Curves.easeOut,
+                padding: EdgeInsets.only(
+                  left: index == 0 ? 18 : 6,
+                  right: index == widget.pujas.length - 1 ? 18 : 6,
+                ),
+                child: _SpecialPujaBanner(
+                  puja: puja,
+                  onTap: () => widget.onTap(puja),
+                ),
+              );
+            },
+          ),
+        ),
+        if (widget.pujas.length > 1) ...[
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              widget.pujas.length,
+              (index) => AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                width: index == currentIndex ? 22 : 7,
+                height: 7,
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                decoration: BoxDecoration(
+                  color: index == currentIndex
+                      ? AppColors.primary
+                      : AppColors.border,
+                  borderRadius: BorderRadius.circular(99),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
 class _SpecialPujaBanner extends StatelessWidget {
   final Puja puja;
   final VoidCallback onTap;
@@ -213,56 +290,81 @@ class _SpecialPujaBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
-      child: Material(
-        color: AppColors.primary,
-        child: InkWell(
-          onTap: onTap,
-          child: SizedBox(
-            height: 178,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                CachedNetworkImage(
-                  imageUrl: ApiEndpoints.image(puja.bannerImage),
-                  fit: BoxFit.cover,
-                  errorWidget: (_, _, _) => const ColoredBox(
-                    color: AppColors.primary,
-                    child: Icon(
-                      Icons.temple_hindu,
-                      color: Colors.white54,
-                      size: 72,
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryDark.withValues(alpha: 0.18),
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: Material(
+          color: AppColors.primary,
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: SizedBox(
+              height: double.infinity,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  CachedNetworkImage(
+                    imageUrl: ApiEndpoints.image(puja.bannerImage),
+                    fit: BoxFit.cover,
+                    errorWidget: (_, _, _) => const ColoredBox(
+                      color: AppColors.primary,
+                      child: Icon(
+                        Icons.temple_hindu,
+                        color: Colors.white54,
+                        size: 72,
+                      ),
                     ),
                   ),
-                ),
-                // const DecoratedBox(
-                //   decoration: BoxDecoration(
-                //     gradient: LinearGradient(
-                //       colors: [Color(0xDD3B1709), Color(0x33000000)],
-                //       begin: Alignment.bottomCenter,
-                //       end: Alignment.topCenter,
-                //     ),
-                //   ),
-                // ),
-                // Padding(
-                //   padding: const EdgeInsets.all(18),
-                //   child: Align(
-                //     alignment: Alignment.bottomLeft,
-                //     child: Text(
-                //       puja.title,
-                //       maxLines: 2,
-                //       overflow: TextOverflow.ellipsis,
-                //       style: const TextStyle(
-                //         color: Colors.white,
-                //         fontSize: 22,
-                //         fontWeight: FontWeight.w800,
-                //         height: 1.15,
-                //       ),
-                //     ),
-                //   ),
-                // ),
-              ],
+                  const DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Color(0xAA260B00),
+                          Color(0x33260B00),
+                          Color(0x00260B00),
+                        ],
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(16, 28, 16, 16),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xD9000000), Color(0x00000000)],
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                        ),
+                      ),
+                      child: Text(
+                        puja.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          height: 1.1,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

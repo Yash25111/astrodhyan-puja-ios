@@ -1,34 +1,16 @@
-import 'dart:async';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
+export 'payment_models.dart';
 
-class PaymentResult {
-  const PaymentResult({
-    required this.paymentId,
-    required this.orderId,
-    required this.signature,
-  });
-  final String paymentId;
-  final String orderId;
-  final String signature;
-}
-
-class PaymentException implements Exception {
-  const PaymentException(this.message);
-  final String message;
-  @override
-  String toString() => message;
-}
+import 'payment_gateway.dart';
+import 'payment_models.dart';
 
 class PaymentService {
-  static const testKey = 'rzp_test_4C4H3EaqkCBpYu';
+  static const liveKey = 'rzp_live_RyzmO6CkhGXqPa';
 
-  PaymentService({Razorpay? razorpay}) : _razorpay = razorpay ?? Razorpay() {
-    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _onSuccess);
-    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _onError);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _onExternalWallet);
-  }
-  final Razorpay _razorpay;
-  Completer<PaymentResult>? _completer;
+  PaymentService({PaymentGateway? gateway})
+    : _gateway = gateway ?? createPaymentGateway();
+
+  final PaymentGateway _gateway;
+
   Future<PaymentResult> startCheckout({
     required String orderId,
     required num amountInRupees,
@@ -50,13 +32,6 @@ class PaymentService {
         const PaymentException('Payment amount must be greater than zero.'),
       );
     }
-    if (_completer != null && !_completer!.isCompleted) {
-      return Future.error(
-        const PaymentException('A payment is already in progress.'),
-      );
-    }
-    final completer = Completer<PaymentResult>();
-    _completer = completer;
     final options = <String, dynamic>{
       'key': key,
       // Razorpay Checkout expects amount in the smallest currency unit.
@@ -71,55 +46,10 @@ class PaymentService {
       },
       'theme': {'color': '#E86416'},
     };
-    try {
-      _razorpay.open(options);
-    } catch (error) {
-      _completeError(
-        PaymentException('Unable to open payment gateway: $error'),
-      );
-    }
-    return completer.future;
-  }
-
-  void _onSuccess(PaymentSuccessResponse response) {
-    _completeSuccess(
-      PaymentResult(
-        paymentId: response.paymentId ?? '',
-        orderId: response.orderId ?? '',
-        signature: response.signature ?? '',
-      ),
-    );
-  }
-
-  void _onError(PaymentFailureResponse response) {
-    final message = response.message?.trim().isNotEmpty == true
-        ? response.message!
-        : 'Payment failed or was cancelled.';
-    _completeError(PaymentException(message));
-  }
-
-  void _onExternalWallet(ExternalWalletResponse response) {
-    final wallet = response.walletName ?? 'external wallet';
-    _completeError(PaymentException('External wallet selected: $wallet'));
-  }
-
-  void _completeSuccess(PaymentResult result) {
-    final completer = _completer;
-    _completer = null;
-    if (completer != null && !completer.isCompleted) {
-      completer.complete(result);
-    }
-  }
-
-  void _completeError(Object error) {
-    final completer = _completer;
-    _completer = null;
-    if (completer != null && !completer.isCompleted) {
-      completer.completeError(error);
-    }
+    return _gateway.open(options);
   }
 
   void dispose() {
-    _razorpay.clear();
+    _gateway.dispose();
   }
 }

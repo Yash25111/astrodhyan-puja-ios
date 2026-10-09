@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../app_colors.dart';
 import '../constants.dart';
+
 class AppTextField extends StatelessWidget {
   final TextEditingController? controller;
   final FocusNode? focusNode;
@@ -34,50 +35,50 @@ class AppTextField extends StatelessWidget {
     this.readOnly = false,
     this.maxLines = 1,
     this.errorText,
-  }
-  );
+  });
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-    controller: controller,
-    focusNode: focusNode,
-    obscureText: obscureText,
-    keyboardType: keyboardType,
-    textInputAction: textInputAction,
-    validator: validator,
-    onChanged: onChanged,
-    enabled: enabled,
-    readOnly: readOnly,
-    maxLines: obscureText ? 1 : maxLines,
-    decoration: InputDecoration(
-    hintText: hintText,
-    labelText: labelText,
-    prefixIcon: prefixIcon,
-    suffixIcon: suffixIcon,
-    errorText: errorText,
-    filled: true,
-    fillColor: AppColors.surface,
-    contentPadding: const EdgeInsets.symmetric(
-    horizontal: AppConstants.paddingMedium,
-    vertical: AppConstants.padding,
-    ),
-    border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(AppConstants.textFieldRadius),
-    borderSide: const BorderSide(color: AppColors.border),
-    ),
-    enabledBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(AppConstants.textFieldRadius),
-    borderSide: const BorderSide(color: AppColors.border),
-    ),
-    focusedBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(AppConstants.textFieldRadius),
-    borderSide: const BorderSide(color: AppColors.primary),
-    ),
-    errorBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(AppConstants.textFieldRadius),
-    borderSide: const BorderSide(color: AppColors.error),
-    ),
-    ),
+      controller: controller,
+      focusNode: focusNode,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      validator: validator,
+      onChanged: onChanged,
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+      enabled: enabled,
+      readOnly: readOnly,
+      maxLines: obscureText ? 1 : maxLines,
+      decoration: InputDecoration(
+        hintText: hintText,
+        labelText: labelText,
+        prefixIcon: prefixIcon,
+        suffixIcon: suffixIcon,
+        errorText: errorText,
+        filled: true,
+        fillColor: AppColors.surface,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.paddingMedium,
+          vertical: AppConstants.padding,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppConstants.textFieldRadius),
+          borderSide: const BorderSide(color: AppColors.border),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppConstants.textFieldRadius),
+          borderSide: const BorderSide(color: AppColors.border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppConstants.textFieldRadius),
+          borderSide: const BorderSide(color: AppColors.primary),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppConstants.textFieldRadius),
+          borderSide: const BorderSide(color: AppColors.error),
+        ),
+      ),
     );
   }
 }
