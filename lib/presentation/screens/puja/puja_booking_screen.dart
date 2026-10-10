@@ -1,10 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../app_colors.dart';
+import '../../../core/network/api_endpoints.dart';
 import '../../../core/storage/local_storage.dart';
 import '../../../data/models/order_result.dart';
 import '../../../data/models/transaction.dart';
-import '../../../services/time_format_service.dart';
 import '../../../services/payment_service.dart';
 import '../../../utils/validators.dart';
 import '../../../widgets/app_appbar.dart';
@@ -26,6 +27,7 @@ class _MemberForm {
   final name = TextEditingController();
   final gotram = TextEditingController();
   String gender = 'Male';
+  bool useDefaultGotram = false;
   void dispose() {
     name.dispose();
     gotram.dispose();
@@ -61,6 +63,28 @@ class _PujaBookingScreenState extends State<PujaBookingScreen> {
       .where((offering) => selectedOfferings.contains(offering.id))
       .fold<num>(0, (sum, offering) => sum + offering.price);
   num get total => widget.data.packagePrice + offeringsTotal;
+
+  void _toggleOffering(String offeringId, bool selected) {
+    setState(() {
+      if (selected) {
+        selectedOfferings.remove(offeringId);
+      } else {
+        selectedOfferings.add(offeringId);
+      }
+    });
+  }
+
+  void _toggleDefaultGotram(_MemberForm member, bool value) {
+    setState(() {
+      member.useDefaultGotram = value;
+      if (value) {
+        member.gotram.text = 'Kashyap';
+      } else if (member.gotram.text.trim().toLowerCase() == 'kashyap') {
+        member.gotram.clear();
+      }
+    });
+  }
+
   void _createOrder() {
     if (!formKey.currentState!.validate()) return;
     context.read<BookingBloc>().add(
@@ -144,17 +168,7 @@ class _PujaBookingScreenState extends State<PujaBookingScreen> {
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      widget.data.packageType,
-                      style: const TextStyle(color: AppColors.subheading),
-                    ),
                     const SizedBox(height: 12),
-                    AppKeyValue(
-                      label: 'Date',
-                      value: TimeFormatService.formatDate(widget.data.date),
-                    ),
-                    const SizedBox(height: 8),
                     AppKeyValue(label: 'Location', value: widget.data.location),
                     const SizedBox(height: 8),
                     AppKeyValue(
@@ -181,28 +195,79 @@ class _PujaBookingScreenState extends State<PujaBookingScreen> {
                         color: selected ? AppColors.primary : AppColors.border,
                       ),
                       color: selected ? AppColors.cream : Colors.white,
-                      child: CheckboxListTile(
-                        value: selected,
-                        onChanged: (_) {
-                          setState(() {
-                            if (selected) {
-                              selectedOfferings.remove(offering.id);
-                            } else {
-                              selectedOfferings.add(offering.id);
-                            }
-                          });
-                        },
-                        activeColor: AppColors.primary,
-                        title: Text(
-                          offering.title,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(18),
+                        onTap: () => _toggleOffering(offering.id, selected),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: SizedBox(
+                                  width: 58,
+                                  height: 58,
+                                  child: CachedNetworkImage(
+                                    imageUrl: ApiEndpoints.image(
+                                      offering.image,
+                                    ),
+                                    fit: BoxFit.cover,
+                                    errorWidget: (_, _, _) => const ColoredBox(
+                                      color: AppColors.paleOrange,
+                                      child: Icon(
+                                        Icons.local_florist_rounded,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      offering.title,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    if (offering.description.isNotEmpty) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        offering.description,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          color: AppColors.subheading,
+                                          fontSize: 12,
+                                          height: 1.25,
+                                        ),
+                                      ),
+                                    ],
+                                    const SizedBox(height: 6),
+                                    AppRupeeAmount(
+                                      amount: offering.price,
+                                      fontSize: 14,
+                                      color: AppColors.primaryDark,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Checkbox(
+                                value: selected,
+                                activeColor: AppColors.primary,
+                                onChanged: (_) =>
+                                    _toggleOffering(offering.id, selected),
+                              ),
+                            ],
+                          ),
                         ),
-                        subtitle: Text(
-                          offering.description,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        secondary: AppRupeeAmount(amount: offering.price),
                       ),
                     ),
                   );
@@ -266,6 +331,7 @@ class _PujaBookingScreenState extends State<PujaBookingScreen> {
                         const SizedBox(height: 10),
                         TextFormField(
                           controller: member.gotram,
+                          readOnly: member.useDefaultGotram,
                           onTapOutside: (_) =>
                               FocusManager.instance.primaryFocus?.unfocus(),
                           decoration: const InputDecoration(
@@ -273,6 +339,19 @@ class _PujaBookingScreenState extends State<PujaBookingScreen> {
                           ),
                           validator: (value) =>
                               Validators.required(value, 'Gotram'),
+                        ),
+                        CheckboxListTile(
+                          value: member.useDefaultGotram,
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          activeColor: AppColors.primary,
+                          title: const Text(
+                            "I don't know my gotram",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          onChanged: (value) =>
+                              _toggleDefaultGotram(member, value ?? false),
                         ),
                       ],
                     ),
