@@ -12,6 +12,7 @@ class ApiEndpoints {
   static const submitReview = '/user/pujaReview/submit';
   static const profile = '/user/auth/profile';
   static const updateProfile = '/user/auth/update_profile';
+  static const deleteProfile = '/user/auth/delete_profile';
   static String image(String? path) {
     if (path == null || path.isEmpty) return '';
     if (path.startsWith('http')) return path;

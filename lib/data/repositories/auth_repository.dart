@@ -54,4 +54,13 @@ class AuthRepository {
 
   Future<bool> hasSession() => storage.hasSession();
   Future<void> logout() => storage.clearSession();
+
+  Future<String> deleteAccount() async {
+    final response = await http.delete(ApiEndpoints.deleteProfile);
+    await storage.clearSession();
+    if (response is Map && response['message'] != null) {
+      return '${response['message']}';
+    }
+    return 'Account deleted successfully';
+  }
 }
