@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../../app_colors.dart';
 import '../../../core/storage/local_storage.dart';
 import '../../router/app_router.dart';
 
@@ -55,21 +54,31 @@ class _SplashScreenState extends State<SplashScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 92,
-                    height: 92,
-                    decoration: const BoxDecoration(
+                    width: 112,
+                    height: 112,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
                       color: Colors.white,
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(28),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x33000000),
+                          blurRadius: 22,
+                          offset: Offset(0, 12),
+                        ),
+                      ],
                     ),
-                    child: const Icon(
-                      Icons.local_florist_rounded,
-                      size: 54,
-                      color: AppColors.primary,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(22),
+                      child: Image.asset(
+                        'assets/AppIogo/app_logo.jpeg',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
                   const Text(
-                    'Divine Puja',
+                    'Puja Experts',
                     style: TextStyle(
                       fontSize: 34,
                       fontWeight: FontWeight.w800,

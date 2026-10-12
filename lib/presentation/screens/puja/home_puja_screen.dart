@@ -39,11 +39,21 @@ class _HomePujaScreenState extends State<HomePujaScreen> {
               sliver: SliverToBoxAdapter(
                 child: Row(
                   children: [
-                    const CircleAvatar(
-                      backgroundColor: AppColors.cream,
-                      child: Icon(
-                        Icons.local_florist_rounded,
-                        color: AppColors.primary,
+                    Container(
+                      width: 46,
+                      height: 46,
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: AppColors.cream,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.asset(
+                          'assets/AppIogo/app_logo.jpeg',
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -52,7 +62,7 @@ class _HomePujaScreenState extends State<HomePujaScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Welcome',
+                            'Puja Experts',
                             style: TextStyle(
                               fontWeight: FontWeight.w800,
                               fontSize: 17,

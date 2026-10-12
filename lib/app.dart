@@ -65,7 +65,7 @@ class _PujaAppState extends State<PujaApp> {
     ],
     child: MaterialApp(
     debugShowCheckedModeBanner: false,
-    title: 'Divine Puja',
+    title: 'Puja Experts',
     theme: _theme,
     initialRoute: AppRouter.splash,
     onGenerateRoute: AppRouter.onGenerateRoute,

@@ -62,12 +62,25 @@
     # Linting
     # --------------------------------------------------
     flutter_lints: ^6.0.0
+    flutter_launcher_icons: ^0.14.4
+
+
+
+
+  flutter_launcher_icons:
+      ios: true
+      android: false
+      image_path: "assets/AppIogo/app_logo.jpeg"
+      remove_alpha_ios: true
+
 
   flutter:
     # --------------------------------------------------
     # Material Icons
     # --------------------------------------------------
     uses-material-design: true
+
+
 
     # --------------------------------------------------
     # Assets
@@ -82,6 +95,7 @@
     assets:
       - assets/images/splash_temple.png
       - assets/images/auth_background.png
+      - assets/AppIogo/app_logo.jpeg
 
     # --------------------------------------------------
 

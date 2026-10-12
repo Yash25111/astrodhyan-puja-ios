@@ -37,7 +37,7 @@ class PaymentService {
       // Razorpay Checkout expects amount in the smallest currency unit.
       'amount': (amountInRupees * 100).round(),
       'currency': 'INR',
-      'name': 'Divine Puja',
+      'name': 'Puja Experts',
       'description': description,
       'order_id': orderId,
       'prefill': {

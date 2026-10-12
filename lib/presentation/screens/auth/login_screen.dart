@@ -69,22 +69,41 @@ class _LoginScreenState extends State<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const SizedBox(height: 50),
-                      const Center(
-                        child: Icon(
-                          Icons.local_florist_rounded,
-                          size: 62,
-                          color: AppColors.primary,
+                      Center(
+                        child: Container(
+                          width: 92,
+                          height: 92,
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(color: AppColors.border),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x16000000),
+                                blurRadius: 18,
+                                offset: Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(18),
+                            child: Image.asset(
+                              'assets/AppIogo/app_logo.jpeg',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 28),
                       const AppHeading(
-                        text: 'Welcome',
+                        text: 'Welcome to Puja Experts',
                         fontSize: 30,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        'Sign in to continue your spiritual journey with divine pujas.',
+                        'Sign in to continue your spiritual journey with Puja Experts.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: AppColors.subheading,

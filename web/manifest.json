@@ -1,11 +1,11 @@
 {
-    "name": "puja_experts",
-    "short_name": "puja_experts",
+    "name": "Puja Experts",
+    "short_name": "Puja Experts",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Professional Puja Experts Flutter application.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
