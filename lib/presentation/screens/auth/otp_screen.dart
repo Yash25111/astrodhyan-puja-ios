@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/services.dart';
 
 import '../../../app_colors.dart';
 import '../../../widgets/app_appbar.dart';
@@ -20,22 +21,33 @@ class OtpScreen extends StatefulWidget {
 class _OtpScreenState extends State<OtpScreen> {
   static const otpLength = 4;
 
-  final cs = List.generate(otpLength, (_) => TextEditingController());
-  final ns = List.generate(otpLength, (_) => FocusNode());
+  final otpController = TextEditingController();
+  final otpFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    otpController.addListener(_refreshOtpBoxes);
+    otpFocusNode.addListener(_refreshOtpBoxes);
+  }
 
   @override
   void dispose() {
-    for (final c in cs) {
-      c.dispose();
-    }
-    for (final n in ns) {
-      n.dispose();
-    }
+    otpController
+      ..removeListener(_refreshOtpBoxes)
+      ..dispose();
+    otpFocusNode
+      ..removeListener(_refreshOtpBoxes)
+      ..dispose();
     super.dispose();
   }
 
+  void _refreshOtpBoxes() {
+    if (mounted) setState(() {});
+  }
+
   void verify() {
-    final otp = cs.map((e) => e.text).join();
+    final otp = otpController.text;
     if (otp.length != otpLength) {
       ScaffoldMessenger.of(
         context,
@@ -43,6 +55,14 @@ class _OtpScreenState extends State<OtpScreen> {
       return;
     }
     context.read<AuthBloc>().add(OtpRequested(widget.phone, otp));
+  }
+
+  void _focusOtpAt(int index) {
+    final textLength = otpController.text.length;
+    otpFocusNode.requestFocus();
+    otpController.selection = index < textLength
+        ? TextSelection(baseOffset: index, extentOffset: index + 1)
+        : TextSelection.collapsed(offset: textLength);
   }
 
   @override
@@ -100,50 +120,93 @@ class _OtpScreenState extends State<OtpScreen> {
                                 .clamp(52.0, 60.0)
                                 .toDouble();
 
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            otpLength,
-                            (i) => Padding(
-                              padding: EdgeInsets.only(
-                                right: i == otpLength - 1 ? 0 : 10,
-                              ),
-                              child: SizedBox.square(
-                                dimension: boxSize,
-                                child: TextField(
-                                  controller: cs[i],
-                                  focusNode: ns[i],
-                                  maxLength: 1,
-                                  textAlign: TextAlign.center,
-                                  textAlignVertical: TextAlignVertical.center,
-                                  keyboardType: TextInputType.number,
-                                  onTapOutside: (_) => FocusManager
-                                      .instance
-                                      .primaryFocus
-                                      ?.unfocus(),
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w800,
+                        final otp = otpController.text;
+                        final selection = otpController.selection;
+                        final selectedIndex = otpFocusNode.hasFocus
+                            ? selection.start.clamp(0, otpLength - 1).toInt()
+                            : -1;
+
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(
+                                otpLength,
+                                (i) => Padding(
+                                  padding: EdgeInsets.only(
+                                    right: i == otpLength - 1 ? 0 : 10,
                                   ),
-                                  decoration: InputDecoration(
-                                    counterText: '',
-                                    contentPadding: EdgeInsets.zero,
-                                    fillColor: Colors.white.withValues(
-                                      alpha: 0.86,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(10),
+                                    onTap: () => _focusOtpAt(i),
+                                    child: AnimatedContainer(
+                                      duration: const Duration(
+                                        milliseconds: 160,
+                                      ),
+                                      width: boxSize,
+                                      height: boxSize,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.86,
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: selectedIndex == i
+                                              ? AppColors.primary
+                                              : AppColors.border,
+                                          width: selectedIndex == i ? 1.8 : 1,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        i < otp.length ? otp[i] : '',
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          height: 1,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                  onChanged: (v) {
-                                    if (v.isNotEmpty && i < otpLength - 1) {
-                                      ns[i + 1].requestFocus();
-                                    }
-                                    if (v.isEmpty && i > 0) {
-                                      ns[i - 1].requestFocus();
-                                    }
-                                  },
                                 ),
                               ),
                             ),
-                          ),
+                            Positioned(
+                              top: 0,
+                              left: 0,
+                              child: SizedBox(
+                                width: 1,
+                                height: 1,
+                                child: Opacity(
+                                  opacity: 0,
+                                  child: TextField(
+                                    controller: otpController,
+                                    focusNode: otpFocusNode,
+                                    maxLength: otpLength,
+                                    keyboardType: TextInputType.number,
+                                    textInputAction: TextInputAction.done,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                      LengthLimitingTextInputFormatter(
+                                        otpLength,
+                                      ),
+                                    ],
+                                    onSubmitted: (_) => verify(),
+                                    onTapOutside: (_) => FocusManager
+                                        .instance
+                                        .primaryFocus
+                                        ?.unfocus(),
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                      counterText: '',
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         );
                       },
                     ),
