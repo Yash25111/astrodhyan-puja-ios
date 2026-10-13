@@ -121,7 +121,7 @@ class _HomePujaScreenState extends State<HomePujaScreen> {
                         ),
                       ),
                       SizedBox(
-                        height: 218,
+                        height: 172,
                         child: _SpecialPujaCarousel(
                           pujas: s.specialPujas,
                           onTap: (puja) => Navigator.pushNamed(
@@ -203,7 +203,7 @@ class _SpecialPujaCarouselState extends State<_SpecialPujaCarousel> {
   @override
   void initState() {
     super.initState();
-    controller = PageController(viewportFraction: 0.9);
+    controller = PageController(viewportFraction: 0.78);
     _startAutoScroll();
   }
 
@@ -247,28 +247,37 @@ class _SpecialPujaCarouselState extends State<_SpecialPujaCarousel> {
         Expanded(
           child: PageView.builder(
             controller: controller,
-            padEnds: false,
+            clipBehavior: Clip.none,
+            padEnds: true,
             itemCount: widget.pujas.length,
             onPageChanged: (index) => setState(() => currentIndex = index),
             itemBuilder: (context, index) {
               final puja = widget.pujas[index];
-              return AnimatedPadding(
-                duration: const Duration(milliseconds: 240),
-                curve: Curves.easeOut,
-                padding: EdgeInsets.only(
-                  left: index == 0 ? 18 : 6,
-                  right: index == widget.pujas.length - 1 ? 18 : 6,
-                ),
-                child: _SpecialPujaBanner(
-                  puja: puja,
-                  onTap: () => widget.onTap(puja),
+              return AnimatedBuilder(
+                animation: controller,
+                builder: (context, child) {
+                  var page = currentIndex.toDouble();
+                  if (controller.hasClients &&
+                      controller.position.haveDimensions) {
+                    page = controller.page ?? page;
+                  }
+                  final distance = (page - index).abs().clamp(0.0, 1.0);
+                  final scale = 1 - (distance * 0.06);
+                  return Transform.scale(scale: scale, child: child);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: _SpecialPujaBanner(
+                    puja: puja,
+                    onTap: () => widget.onTap(puja),
+                  ),
                 ),
               );
             },
           ),
         ),
         if (widget.pujas.length > 1) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
@@ -303,17 +312,17 @@ class _SpecialPujaBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryDark.withValues(alpha: 0.18),
-            blurRadius: 18,
-            offset: const Offset(0, 10),
+            color: AppColors.primaryDark.withValues(alpha: 0.14),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(22),
         child: Material(
           color: AppColors.primary,
           clipBehavior: Clip.antiAlias,
@@ -332,7 +341,7 @@ class _SpecialPujaBanner extends StatelessWidget {
                       child: Icon(
                         Icons.temple_hindu,
                         color: Colors.white54,
-                        size: 72,
+                        size: 48,
                       ),
                     ),
                   ),
@@ -340,8 +349,8 @@ class _SpecialPujaBanner extends StatelessWidget {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Color(0xAA260B00),
-                          Color(0x33260B00),
+                          Color(0xCC120600),
+                          Color(0x44120600),
                           Color(0x00260B00),
                         ],
                         begin: Alignment.bottomCenter,
@@ -349,28 +358,26 @@ class _SpecialPujaBanner extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(16, 28, 16, 16),
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xD9000000), Color(0x00000000)],
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                        ),
-                      ),
-                      child: Text(
-                        puja.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          height: 1.1,
-                        ),
+                  Positioned(
+                    left: 14,
+                    right: 14,
+                    bottom: 12,
+                    child: Text(
+                      puja.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        height: 1.15,
+                        shadows: [
+                          Shadow(
+                            color: Color(0x99000000),
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
                       ),
                     ),
                   ),
