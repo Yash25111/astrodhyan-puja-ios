@@ -8,7 +8,7 @@
 PRODUCT_NAME = Puja Experts
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.megha.pujaexpert.pujaExperts
+PRODUCT_BUNDLE_IDENTIFIER = com.megha.pujaexpert
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2026 com.megha.pujaexpert. All rights reserved.
