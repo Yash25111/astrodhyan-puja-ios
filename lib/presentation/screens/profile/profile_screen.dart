@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../app_colors.dart';
 import '../../../core/network/api_endpoints.dart';
+import '../../../services/url_launcher_service.dart';
 import '../../../widgets/app_card.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/profile/profile_bloc.dart';
@@ -210,16 +211,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         () => Navigator.pushNamed(c, AppRouter.notifications),
                       ),
                       const Divider(height: 1),
-                      _item(
-                        Icons.help_outline,
-                        'Help & Support',
-                        () => Navigator.pushNamed(c, AppRouter.support),
-                      ),
-                      const Divider(height: 1),
+
                       _item(
                         Icons.privacy_tip_outlined,
                         'Terms & Privacy',
-                        () => Navigator.pushNamed(c, AppRouter.termsPrivacy),
+                            () => UrlLauncherService.openUrl(
+                          'https://luxury-fox-213083.netlify.app/',
+                        ),
                       ),
                     ],
                   ),

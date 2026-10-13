@@ -11,8 +11,7 @@ import '../screens/history/bookings_screen.dart';
 import '../screens/history/transaction_detail_screen.dart';
 import '../screens/profile/profile_edit_screen.dart';
 import '../screens/profile/notifications_screen.dart';
-import '../screens/profile/support_screen.dart';
-import '../screens/profile/terms_privacy_screen.dart';
+
 
 class AppRouter {
   static const splash = '/',
@@ -26,9 +25,8 @@ class AppRouter {
       transaction = '/transaction',
       profileEdit = '/profile/edit',
       bookings = '/profile/bookings',
-      notifications = '/profile/notifications',
-      support = '/profile/support',
-      termsPrivacy = '/profile/terms-privacy';
+      notifications = '/profile/notifications';
+
   static Route<dynamic> onGenerateRoute(RouteSettings s) {
     switch (s.name) {
       case splash:
@@ -66,10 +64,7 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const BookingsScreen());
       case notifications:
         return MaterialPageRoute(builder: (_) => const NotificationsScreen());
-      case support:
-        return MaterialPageRoute(builder: (_) => const SupportScreen());
-      case termsPrivacy:
-        return MaterialPageRoute(builder: (_) => const TermsPrivacyScreen());
+
       default:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
     }
