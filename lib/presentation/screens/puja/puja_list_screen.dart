@@ -26,11 +26,7 @@ class _PujaListScreenState extends State<PujaListScreen> {
     super.initState();
     search.text = context.read<PujaBloc>().state.search;
     context.read<PujaBloc>().add(const PujasRequested(refresh: true));
-    scroll.addListener(() {
-      if (scroll.position.pixels > scroll.position.maxScrollExtent - 400) {
-        context.read<PujaBloc>().add(const PujasMore());
-      }
-    });
+    scroll.addListener(_onScroll);
   }
 
   @override
@@ -59,6 +55,13 @@ class _PujaListScreenState extends State<PujaListScreen> {
     final query = value.trim();
     if (query.isNotEmpty && query.length < 3) return;
     context.read<PujaBloc>().add(SearchChanged(query));
+  }
+
+  void _onScroll() {
+    if (!scroll.hasClients) return;
+    if (scroll.position.pixels > scroll.position.maxScrollExtent - 400) {
+      context.read<PujaBloc>().add(const PujasMore());
+    }
   }
 
   @override
@@ -99,7 +102,7 @@ class _PujaListScreenState extends State<PujaListScreen> {
                 return SliverPadding(
                   padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
                   sliver: SliverList.separated(
-                    itemCount: state.items.length + (state.more ? 1 : 0),
+                    itemCount: state.items.length + (state.loadingMore ? 1 : 0),
                     separatorBuilder: (_, _) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       if (index >= state.items.length) {

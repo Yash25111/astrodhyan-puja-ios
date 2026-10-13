@@ -12,6 +12,7 @@ class PujaState extends Equatable {
   final PujaDetail? detail;
   final bool homeLoading;
   final bool loading;
+  final bool loadingMore;
   final bool detailLoading;
   final bool more;
   final int page;
@@ -26,6 +27,7 @@ class PujaState extends Equatable {
     this.detail,
     this.homeLoading = false,
     this.loading = false,
+    this.loadingMore = false,
     this.detailLoading = false,
     this.more = false,
     this.page = 1,
@@ -43,6 +45,7 @@ class PujaState extends Equatable {
     PujaDetail? detail,
     bool? homeLoading,
     bool? loading,
+    bool? loadingMore,
     bool? detailLoading,
     bool? more,
     int? page,
@@ -62,6 +65,7 @@ class PujaState extends Equatable {
       detail: clearDetail ? null : detail ?? this.detail,
       homeLoading: homeLoading ?? this.homeLoading,
       loading: loading ?? this.loading,
+      loadingMore: loadingMore ?? this.loadingMore,
       detailLoading: detailLoading ?? this.detailLoading,
       more: more ?? this.more,
       page: page ?? this.page,
@@ -79,6 +83,7 @@ class PujaState extends Equatable {
     detail,
     homeLoading,
     loading,
+    loadingMore,
     detailLoading,
     more,
     page,
@@ -184,6 +189,7 @@ class PujaBloc extends Bloc<PujaEvent, PujaState> {
     o(
       state.copy(
         loading: true,
+        loadingMore: false,
         clearError: true,
         page: 1,
         items: e.refresh ? [] : state.items,
@@ -198,9 +204,10 @@ class PujaBloc extends Bloc<PujaEvent, PujaState> {
       o(
         state.copy(
           loading: false,
-          items: x,
-          page: 1,
-          more: x.length >= PujaRepository.pageSize,
+          loadingMore: false,
+          items: x.items,
+          page: x.page,
+          more: x.hasMore,
         ),
       );
     } catch (x) {
@@ -209,8 +216,8 @@ class PujaBloc extends Bloc<PujaEvent, PujaState> {
   }
 
   Future<void> _more(PujasMore e, Emitter<PujaState> o) async {
-    if (state.loading || state.more == false) return;
-    o(state.copy(more: false));
+    if (state.loading || state.loadingMore || state.more == false) return;
+    o(state.copy(loadingMore: true, clearError: true));
     try {
       final x = await repo.list(
         page: state.page + 1,
@@ -218,16 +225,19 @@ class PujaBloc extends Bloc<PujaEvent, PujaState> {
         search: state.search,
       );
       final existingIds = state.items.map((p) => p.id).toSet();
-      final newItems = x.where((p) => !existingIds.contains(p.id)).toList();
+      final newItems = x.items
+          .where((p) => !existingIds.contains(p.id))
+          .toList();
       o(
         state.copy(
+          loadingMore: false,
           items: [...state.items, ...newItems],
-          page: state.page + 1,
-          more: newItems.isNotEmpty && x.length >= PujaRepository.pageSize,
+          page: x.page,
+          more: newItems.isNotEmpty && x.hasMore,
         ),
       );
     } catch (x) {
-      o(state.copy(more: false, error: x.toString()));
+      o(state.copy(loadingMore: false, more: false, error: x.toString()));
     }
   }
 

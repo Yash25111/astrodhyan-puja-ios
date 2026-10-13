@@ -1,7 +1,7 @@
 class ApiEndpoints {
   ApiEndpoints._();
-  static const baseUrl = 'https://www.astrodhyaan.com/api';
-  static const imageBaseUrl = 'https://www.astrodhyaan.com/public';
+  static const baseUrl = 'http://3.108.80.130:5001/api';
+  static const imageBaseUrl = 'http://3.108.80.130:5001/public';
   static const login = '/user/auth/login';
   static const verifyOtp = '/user/auth/verify_otp';
   static const pujaHome = '/user/dashboard/getPujaHomePageData';

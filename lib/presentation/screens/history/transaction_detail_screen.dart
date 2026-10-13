@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../app_colors.dart';
 import '../../../core/network/api_endpoints.dart';
+import '../../../data/models/transaction.dart';
+import '../../../services/certificate_pdf_service.dart';
 import '../../../services/time_format_service.dart';
 import '../../../widgets/app_appbar.dart';
 import '../../../widgets/app_button.dart';
@@ -24,7 +27,9 @@ class TransactionDetailScreen extends StatefulWidget {
 
 class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
   final reviewController = TextEditingController();
+  final certificateService = CertificatePdfService();
   double rating = 0;
+  bool certificateLoading = false;
   @override
   void initState() {
     super.initState();
@@ -67,6 +72,38 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Unable to open video')));
+    }
+  }
+
+  bool _canDownloadCertificate(TransactionDetail detail) {
+    final statuses = [
+      detail.paymentStatus,
+      detail.status,
+      detail.pujaStatus,
+    ].map((value) => value.toLowerCase().trim());
+    return statuses.any(
+      (status) =>
+          status == 'completed' ||
+          status == 'complete' ||
+          status.contains('completed'),
+    );
+  }
+
+  Future<void> _downloadCertificate(TransactionDetail detail) async {
+    setState(() => certificateLoading = true);
+    try {
+      final bytes = await certificateService.build(detail);
+      await Printing.sharePdf(
+        bytes: bytes,
+        filename: certificateService.fileName(detail),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to generate certificate: $error')),
+      );
+    } finally {
+      if (mounted) setState(() => certificateLoading = false);
     }
   }
 
@@ -242,6 +279,46 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                     ],
                   ),
                 ),
+                if (_canDownloadCertificate(detail)) ...[
+                  const SizedBox(height: 12),
+                  AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(
+                              Icons.workspace_premium_outlined,
+                              color: AppColors.primary,
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Completion Certificate',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Generate a PDF certificate using this booking information.',
+                          style: TextStyle(color: AppColors.subheading),
+                        ),
+                        const SizedBox(height: 14),
+                        AppButton(
+                          text: 'Download Certificate',
+                          loading: certificateLoading,
+                          width: double.infinity,
+                          onPressed: () => _downloadCertificate(detail),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 AppCard(
                   child: Column(
