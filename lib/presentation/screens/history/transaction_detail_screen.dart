@@ -303,11 +303,11 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Generate a PDF certificate using this booking information.',
-                          style: TextStyle(color: AppColors.subheading),
-                        ),
+                        // const SizedBox(height: 8),
+                        // const Text(
+                        //   'Generate a PDF certificate using this booking information.',
+                        //   style: TextStyle(color: AppColors.subheading),
+                        // ),
                         const SizedBox(height: 14),
                         AppButton(
                           text: 'Download Certificate',
