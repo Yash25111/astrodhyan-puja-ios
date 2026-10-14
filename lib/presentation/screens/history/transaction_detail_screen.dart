@@ -76,17 +76,10 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
   }
 
   bool _canDownloadCertificate(TransactionDetail detail) {
-    final statuses = [
-      detail.paymentStatus,
-      detail.status,
-      detail.pujaStatus,
-    ].map((value) => value.toLowerCase().trim());
-    return statuses.any(
-      (status) =>
-          status == 'completed' ||
-          status == 'complete' ||
-          status.contains('completed'),
-    );
+    final pujaStatus = detail.pujaStatus.toLowerCase().trim();
+    return pujaStatus == 'completed' ||
+        pujaStatus == 'complete' ||
+        pujaStatus.contains('completed');
   }
 
   Future<void> _downloadCertificate(TransactionDetail detail) async {
@@ -303,12 +296,12 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                             ),
                           ],
                         ),
+
                         // const SizedBox(height: 8),
                         // const Text(
                         //   'Generate a PDF certificate using this booking information.',
                         //   style: TextStyle(color: AppColors.subheading),
                         // ),
-
                         const SizedBox(height: 14),
                         AppButton(
                           text: 'Download Certificate',
