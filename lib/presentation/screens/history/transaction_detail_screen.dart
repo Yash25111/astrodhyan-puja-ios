@@ -308,6 +308,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                         //   'Generate a PDF certificate using this booking information.',
                         //   style: TextStyle(color: AppColors.subheading),
                         // ),
+
                         const SizedBox(height: 14),
                         AppButton(
                           text: 'Download Certificate',

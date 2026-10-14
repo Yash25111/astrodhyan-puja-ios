@@ -48,6 +48,13 @@ class LoginRequested extends AuthEvent {
   List<Object?> get props => [phone];
 }
 
+class ResendOtpRequested extends AuthEvent {
+  final String phone;
+  const ResendOtpRequested(this.phone);
+  @override
+  List<Object?> get props => [phone];
+}
+
 class OtpRequested extends AuthEvent {
   final String phone, otp;
   const OtpRequested(this.phone, this.otp);
@@ -68,6 +75,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc(this.repo) : super(const AuthState()) {
     on<AuthStarted>(_start);
     on<LoginRequested>(_login);
+    on<ResendOtpRequested>(_resendOtp);
     on<OtpRequested>(_otp);
     on<LogoutRequested>(_logout);
     on<DeleteAccountRequested>(_deleteAccount);
@@ -84,6 +92,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _login(LoginRequested e, Emitter<AuthState> o) async {
     o(state.copy(loading: true, phone: e.phone, clearError: true));
+    try {
+      await repo.login(e.phone);
+      o(state.copy(loading: false));
+    } catch (x) {
+      o(state.copy(loading: false, error: x.toString()));
+    }
+  }
+
+  Future<void> _resendOtp(ResendOtpRequested e, Emitter<AuthState> o) async {
+    o(state.copy(loading: true, clearError: true));
     try {
       await repo.login(e.phone);
       o(state.copy(loading: false));

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
@@ -20,15 +22,20 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen> {
   static const otpLength = 4;
+  static const resendDuration = 30;
 
   final otpController = TextEditingController();
   final otpFocusNode = FocusNode();
+  Timer? resendTimer;
+  int resendSeconds = resendDuration;
+  bool resendLoading = false;
 
   @override
   void initState() {
     super.initState();
     otpController.addListener(_refreshOtpBoxes);
     otpFocusNode.addListener(_refreshOtpBoxes);
+    _startResendCountdown(notify: false);
   }
 
   @override
@@ -39,6 +46,7 @@ class _OtpScreenState extends State<OtpScreen> {
     otpFocusNode
       ..removeListener(_refreshOtpBoxes)
       ..dispose();
+    resendTimer?.cancel();
     super.dispose();
   }
 
@@ -55,6 +63,44 @@ class _OtpScreenState extends State<OtpScreen> {
       return;
     }
     context.read<AuthBloc>().add(OtpRequested(widget.phone, otp));
+  }
+
+  void _startResendCountdown({bool notify = true}) {
+    resendTimer?.cancel();
+    void reset() {
+      resendSeconds = resendDuration;
+      resendLoading = false;
+    }
+
+    if (notify && mounted) {
+      setState(reset);
+    } else {
+      reset();
+    }
+    resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (resendSeconds <= 1) {
+        timer.cancel();
+        setState(() => resendSeconds = 0);
+        return;
+      }
+      setState(() => resendSeconds--);
+    });
+  }
+
+  void _resendOtp() {
+    if (resendSeconds > 0 || resendLoading) return;
+    setState(() => resendLoading = true);
+    context.read<AuthBloc>().add(ResendOtpRequested(widget.phone));
+  }
+
+  String get _countdownText {
+    final minutes = resendSeconds ~/ 60;
+    final seconds = resendSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
   void _focusOtpAt(int index) {
@@ -88,9 +134,18 @@ class _OtpScreenState extends State<OtpScreen> {
             child: BlocListener<AuthBloc, AuthState>(
               listener: (c, s) {
                 if (s.error != null) {
+                  if (resendLoading) {
+                    setState(() => resendLoading = false);
+                  }
                   ScaffoldMessenger.of(
                     c,
                   ).showSnackBar(SnackBar(content: Text(s.error!)));
+                } else if (resendLoading && !s.loading) {
+                  otpController.clear();
+                  _startResendCountdown();
+                  ScaffoldMessenger.of(c).showSnackBar(
+                    const SnackBar(content: Text('OTP sent again')),
+                  );
                 }
                 if (s.status == AuthStatus.authenticated) {
                   Navigator.pushNamedAndRemoveUntil(
@@ -211,10 +266,27 @@ class _OtpScreenState extends State<OtpScreen> {
                       },
                     ),
                     const SizedBox(height: 18),
-                    const Text(
-                      'Resend OTP in 00:30',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.grey),
+                    BlocBuilder<AuthBloc, AuthState>(
+                      builder: (c, s) {
+                        if (resendSeconds > 0) {
+                          return Text(
+                            'Resend OTP in $_countdownText',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: AppColors.grey),
+                          );
+                        }
+                        return TextButton(
+                          style: TextButton.styleFrom(
+                            minimumSize: Size.zero,
+                            padding: EdgeInsets.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: s.loading ? null : _resendOtp,
+                          child: Text(
+                            resendLoading ? 'Sending OTP...' : 'Resend OTP',
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 28),
                     BlocBuilder<AuthBloc, AuthState>(

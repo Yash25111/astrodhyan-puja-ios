@@ -19,6 +19,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final c = TextEditingController();
   final key = GlobalKey<FormState>();
+  bool otpRouteOpened = false;
 
   @override
   void dispose() {
@@ -28,6 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void submit() {
     if (key.currentState!.validate()) {
+      otpRouteOpened = false;
       context.read<AuthBloc>().add(LoginRequested(c.text.trim()));
     }
   }
@@ -53,7 +55,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ScaffoldMessenger.of(
                     c,
                   ).showSnackBar(SnackBar(content: Text(s.error!)));
-                } else if (!s.loading && s.phone != null) {
+                } else if (!otpRouteOpened && !s.loading && s.phone != null) {
+                  otpRouteOpened = true;
                   Navigator.pushNamed(
                     context,
                     AppRouter.otp,
